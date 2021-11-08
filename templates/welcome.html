@@ -24,13 +24,27 @@
             Date: {{comp['date']}}</br>
             Number of Places: {{comp['numberOfPlaces']}}
             {%if comp['numberOfPlaces']|int >0%}
-            <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
+                {% if comp in active_competition %}
+                <a href="{{ url_for('book',competition=comp['name'],club=club['name']) }}">Book Places</a>
+                {%endif%}
             {%endif%}
         </li>
         <hr />
         {% endfor %}
     </ul>
     {%endwith%}
+
+    <h3>Clubs:</h3>
+    <ul>
+        {% for club in clubs %}
+        <li>
+            Nom : {{ club['name'] }} Total: {{ club ['points']}} points.
+        </li>
+        {% endfor %}
+    </ul>
+
+
+
 
 </body>
 </html>
