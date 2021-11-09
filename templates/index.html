@@ -22,5 +22,36 @@
     {% endif%}
     {%endwith%}
 
+    <h3>Clubs:</h3>
+    <ul>
+        {% for club in clubs %}
+        <li>
+            Nom : {{ club['name'] }} Total: {{ club ['points']}} points.
+        </li>
+        {% endfor %}
+    </ul>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Club</th>
+          <th scope="col">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        {% for club in clubs %}
+        <tr>
+          <td>{{ club['name'] }}</td>
+          <td>{{ club['points'] }}</td>
+        </tr>
+        {% endfor %}
+        
+      </tbody>
+    </table>
+
+
+
+
 </body>
 </html>
