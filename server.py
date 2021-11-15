@@ -15,16 +15,46 @@ def loadCompetitions():
          return listOfCompetitions
 
 
+competitions = loadCompetitions()
+clubs = loadClubs()
+
+
+def get_active_competition():
+    today = datetime.now()
+    active_competition = []
+    for competition in competitions:
+        date_comp = competition['date']
+        date_time_comp = datetime.strptime(date_comp, '%Y-%m-%d %H:%M:%S')
+        if today < date_time_comp:
+            active_competition.append(competition)
+    return active_competition
+
+
+def get_max_booking(competition, club):
+    competition_obj = [item for item in competitions if item["name"] == competition][0]
+    places_available = int(competition_obj['numberOfPlaces'])
+    club_obj = [item for item in clubs if item["name"] == club][0]
+    points_club = int(club_obj['points'])
+    max_booking = min(places_available, points_club)
+    if max_booking >= 12:
+        max_booking = 12
+    else:
+        max_booking = max_booking
+    return max_booking
+
+
+def check_email(email):
+    list_email_club = []
+    for club in clubs:
+        list_email_club.append(club['email'])
+    if email in list_email_club:
+        return True
+    else:
+        return False
+
+
 #app = Flask(__name__)
 #app.secret_key = 'something_special'
-
-
-
-
-
-
-
-
 
 def create_app(config):
     app = Flask(__name__)
@@ -32,51 +62,30 @@ def create_app(config):
     app.config.from_object(config)
     #app.config["TESTING"] = config.get("TESTING")
 
-    competitions = loadCompetitions()
-    clubs = loadClubs()
-
+    
     @app.route('/')
     def index():
         #return 'Hello World'
         return render_template('index.html', clubs=clubs)
 
+
     @app.route('/showSummary',methods=['POST'])
     def showSummary():
-        list_email_club = []
-        for club in clubs:
-            list_email_club.append(club['email'])
         email = request.form['email']
-        if email in list_email_club:
+        if check_email(email):
             club = [club for club in clubs if club['email'] == request.form['email']][0]
-            today = datetime.now()
-            active_competition = []
-            for competition in competitions:
-                date_comp = competition['date']
-                date_time_comp = datetime.strptime(date_comp, '%Y-%m-%d %H:%M:%S')
-                if today < date_time_comp:
-                    active_competition.append(competition)
-            #return 'Hello Word'
+            active_competition = get_active_competition()
             return render_template('welcome.html', clubs=clubs, club=club, 
                active_competition=active_competition, competitions=competitions)
-
         else:
             flash("Adresse e-mail incorrect.Veuillez réessayer.")
             return render_template('index.html', clubs=clubs)
             #return 'Hello Word'
             
 
-
     @app.route('/book/<competition>/<club>')
     def book(competition,club): 
-        competition_obj = [item for item in competitions if item["name"] == competition][0]
-        places_available = int(competition_obj['numberOfPlaces'])
-        club_obj = [item for item in clubs if item["name"] == club][0]
-        points_club = int(club_obj['points'])
-        max_booking = min(places_available, points_club)
-        if max_booking >= 12:
-            max_booking = 12
-        else:
-            max_booking = max_booking
+        max_booking = get_max_booking(competition, club)
         foundClub = [c for c in clubs if c['name'] == club][0]
         foundCompetition = [c for c in competitions if c['name'] == competition][0]
         if foundClub and foundCompetition:
@@ -85,7 +94,7 @@ def create_app(config):
             flash("Something went wrong-please try again")
             return render_template('welcome.html', club=club, 
                 competitions=competitions)
-
+        
 
     @app.route('/purchasePlaces',methods=['POST'])
     def purchasePlaces():
