@@ -14,5 +14,16 @@
         <label for="places">How many places?</label><input type="number" name="places" id="" min="0" max="{{ max_booking }}" />
         <button type="submit">Book</button>
     </form>
+
+    {% with messages = get_flashed_messages()%}
+    {% if messages %}
+        <ul>
+       {% for message in messages %}
+            <li>{{message}}</li>
+        {% endfor %}
+       </ul>
+    {% endif%}
+    {%endwith%}
+    
 </body>
 </html>
