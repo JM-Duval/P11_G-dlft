@@ -1,14 +1,20 @@
 from selenium import webdriver
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+#from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from flask_testing import LiveServerTestCase 
+from flask import Flask
 from django.urls import reverse
-from server import clubs, competitions
+from server import clubs, competitions, create_app
 
 import time
 
-
-class TestUserRoute(StaticLiveServerTestCase):
+class TestUserRoute(LiveServerTestCase):
     
     """Testing of the folling features: login, booking places, logout"""
+
+    def create_app(self):
+        config_name = {"TESTING": True}
+        app = create_app(config_name)
+        return app
 
     def setUp(self):
         self.browser = webdriver.Chrome('tests/Fonctionnal_test/chromedriver')
@@ -18,7 +24,6 @@ class TestUserRoute(StaticLiveServerTestCase):
         self.name_competition = competitions[0]['name']
         self.message_welcome_menu = 'Welcome, ' + self.email_club
         self.message_index_menu = 'Welcome to the GUDLFT Registration Portal!'
-        
 
     def signup(self):
         self.browser.get(self.live_server_url)
